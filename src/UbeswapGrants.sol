@@ -68,7 +68,10 @@ contract UbeswapGrants is Ownable2Step {
     /*                             CONTRIBUTOR METHODS                            */
     /* -------------------------------------------------------------------------- */
 
-    function applyForGrant(bytes32 detailsHash_, address token_, uint256[] calldata msPayments_) external {
+    function applyForGrant(bytes32 detailsHash_, address token_, uint256[] calldata msPayments_)
+        external
+        returns (uint256 grantId)
+    {
         _grants.push(
             Grant({
                 contributor: msg.sender,
@@ -80,7 +83,8 @@ contract UbeswapGrants is Ownable2Step {
             })
         );
 
-        emit RequestSubmitted(msg.sender, _grants.length - 1);
+        grantId = _grants.length - 1;
+        emit RequestSubmitted(msg.sender, grantId);
     }
 
     function withdrawProposal(uint256 grantId) external {

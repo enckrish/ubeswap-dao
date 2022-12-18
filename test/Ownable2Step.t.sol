@@ -6,7 +6,7 @@ import "../src/utils/Ownable2Step.sol";
 
 contract OwnableT is Ownable2Step {}
 
-contract UbeswapGrantTest is Test {
+contract Ownable2StepT is Test {
     OwnableT instance;
     address NEW_OWNER = getAddressFromString("NEW_OWNER");
 
