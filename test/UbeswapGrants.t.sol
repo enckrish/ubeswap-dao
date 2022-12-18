@@ -79,4 +79,24 @@ contract UbeswapGrantsTest is Test {
         instance.transferGrantOwnership(id, to);
         assertEq(instance.getGrant(id).contributor, to);
     }
+
+    function testPayment() public {
+        token.mint(address(instance), 1e5);
+        uint256 id = testApplyForGrant();
+        instance.acceptGrantProposal(id);
+
+        UbeswapGrants.Grant memory grant = instance.getGrant(id);
+        uint256 expected = grant.msPayments[grant.nextMsId];
+
+        uint256 priorBal = token.balanceOf(grant.contributor);
+        instance.releasePayment(id);
+        uint256 newBal = token.balanceOf(grant.contributor);
+        assertEq(newBal - priorBal, expected);
+
+        priorBal = newBal;
+        expected = grant.msPayments[grant.nextMsId + 1];
+        instance.releasePayment(id);
+        newBal = token.balanceOf(grant.contributor);
+        assertEq(newBal - priorBal, expected);
+    }
 }
