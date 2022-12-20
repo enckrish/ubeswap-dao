@@ -68,6 +68,11 @@ contract UbeswapGrants is Ownable2Step {
     /*                             CONTRIBUTOR METHODS                            */
     /* -------------------------------------------------------------------------- */
 
+    /// @notice applies for grant
+    /// @dev does not use milestone dates since they are not practically enforceable without strict control over the contributing person/org
+    /// @param detailsHash_ CIDv1 ipfs hash of any details, such as grant proposal and details required for filling the agreement form
+    /// @param token_ token that contributor wants payments in
+    /// @param msPayments_ proposed payments per milestone
     function applyForGrant(bytes32 detailsHash_, address token_, uint256[] calldata msPayments_)
         external
         returns (uint256 grantId)
@@ -87,6 +92,8 @@ contract UbeswapGrants is Ownable2Step {
         emit RequestSubmitted(msg.sender, grantId);
     }
 
+    /// @notice withdraw a pending grant proposal
+    /// @param grantId ID of the grant proposal to withdraw
     function withdrawProposal(uint256 grantId) external {
         Grant storage grant = _grants[grantId];
         _revertIfNonContributor(grant);
@@ -96,6 +103,9 @@ contract UbeswapGrants is Ownable2Step {
         emit Withdrawn(grantId);
     }
 
+    /// @notice change beneficiary of the grant payments
+    /// @param grantId ID of the grant to change beneficiary in
+    /// @param newOwner address of the new beneficiary
     function transferGrantOwnership(uint256 grantId, address newOwner) external {
         Grant storage grant = _grants[grantId];
         _revertIfNonContributor(grant);
@@ -108,6 +118,8 @@ contract UbeswapGrants is Ownable2Step {
     /*                                 DAO METHODS                                */
     /* -------------------------------------------------------------------------- */
 
+    /// @notice accept a pending grant proposal
+    /// @param grantId ID of the grant proposal to accept
     function acceptGrantProposal(uint256 grantId) external onlyOwner {
         Grant storage grant = _grants[grantId];
         _revertIfNotState(grant, State.Pending);
@@ -115,6 +127,8 @@ contract UbeswapGrants is Ownable2Step {
         emit GrantAccepted(grantId);
     }
 
+    /// @notice releases payment for current milestone of the grant
+    /// @param grantId ID of the grant to release payment to
     function releasePayment(uint256 grantId) external onlyOwner {
         Grant storage grant = _grants[grantId];
         _revertIfNotState(grant, State.Active);
@@ -135,6 +149,9 @@ contract UbeswapGrants is Ownable2Step {
         }
     }
 
+    /// @notice discontinue funding an active grant
+    /// @param grantId ID of grant to dicontinue
+    /// @param pullRemaining if set to true, funds for remaining milestones will be sent to DAO
     function discontinueGrant(uint256 grantId, bool pullRemaining) external onlyOwner {
         Grant storage grant = _grants[grantId];
         _revertIfNotState(grant, State.Active);
@@ -151,6 +168,9 @@ contract UbeswapGrants is Ownable2Step {
         }
     }
 
+    /// @notice Pull funds from this contract to the DAO
+    /// @param token address of the token for which funds are to be pulled (address(0) for CELO/ETH)
+    /// @param amount amount of funds to pull
     function pullFunds(address token, uint256 amount) public onlyOwner {
         address owner = owner();
 
